@@ -1,4 +1,4 @@
+.env
 node_modules/
 
-.env 
-MONGODB_URI="mongodb+srv://jesust9140:jesust9140@cluster0.akmmiyg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
