@@ -1,55 +1,44 @@
-//Essentials Modules
-const express = ("express");
+const express = require('express');
 const mongoose = require('mongoose');
-const Score = require('./models/Score');
+const path = require('path');
+const Score = require('./models/Score'); // Assuming you already created this
+require('dotenv').config(); // In case you use a .env file for MongoDB URI
+
 
 //Connection to Mongo
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-//Initialize Express app
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Pathing 
-app.use(express.static('frontend'));// Fixed my pathing
-res.sendFile(__dirname + '/frontend/index.html');
-
-// Middleware to serve static files from 'frontend' directory
-app.use(express.static('frontend'));
-
-// Middleware to parse JSON requests
-app.use(express.json());
-
-// Route to serve the index.html file
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/frontend/index.html');
-});
-
-// POST route to save player scores
-app.post('/api/scores', async (req, res) => {
-  try {
-    const newScore = await Score.create(req.body);
-    res.status(201).json(newScore);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-// Function to save player score to the database after winning
-function saveScoreToDatabase(username, score) {
-    fetch('/api/scores', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, score })
-    })
-    .then(response => response.json())
-    .then(data => console.log('Score saved:', data))
-    .catch(error => console.error('Error:', error));
-  }
+/// Connect to MongoDB Atlas
+mongoose.connect(process.env.MONGODB_URI, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true 
+  })
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch((err) => console.error('MongoDB connection error:', err));
+  
+  // Middleware to parse incoming JSON
+  app.use(express.json());
+  
+  // Serve static files from the 'frontend' directory
+  app.use(express.static(path.join(__dirname, 'frontend')));
+  
+  // Serve the index.html file
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+  });
+  
+  // POST route to save a new score
+  app.post('/api/scores', async (req, res) => {
+    try {
+      const newScore = await Score.create(req.body);
+      res.status(201).json(newScore);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
+  
+  // Start the server
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
